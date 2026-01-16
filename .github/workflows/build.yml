@@ -3,19 +3,12 @@ name: Build OFP Vulkan Renderer
 on:
   push:
     branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
-    inputs:
-      debug:
-        description: 'Run with debug logging'
-        required: false
-        default: 'false'
 
 jobs:
   build-windows:
     name: Build (Windows)
-    runs-on: windows-latest
+    runs-on: windows-2022
     
     steps:
     - name: Checkout repository
@@ -26,121 +19,15 @@ jobs:
       with:
         cmakeVersion: 3.29.0
     
-    - name: Check Vulkan SDK
-      run: |
-        echo "VULKAN_SDK=$env:VULKAN_SDK"
-        if (Test-Path "$env:VULKAN_SDK\Bin\vulkan.exe") {
-          Write-Host "Vulkan SDK found at $env:VULKAN_SDK"
-        } else {
-          Write-Host "Vulkan SDK not found, downloading..."
-          $url = "https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanSDK-1.3.290.0-Installer.exe"
-          Invoke-WebRequest -Uri $url -OutFile "vulkan_installer.exe"
-          Start-Process -FilePath "vulkan_installer.exe" -ArgumentList "--accept-licenses --default-answer --skip-installer" -Wait
-        }
-      shell: pwsh
-    
     - name: Configure with CMake
-      shell: pwsh
       run: cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
     
     - name: Build
-      shell: pwsh
-      run: cmake --build build --config Release --parallel
+      run: cmake --build build --config Release --parallel 4
     
     - name: Upload DLL artifact
       uses: actions/upload-artifact@v4
       with:
         name: ofp-renderer-dll
-        path: build/bin/*.dll
+        path: build/bin/Release/*.dll
         retention-days: 7
-    
-    - name: Upload PDB artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ofp-renderer-pdb
-        path: build/bin/*.pdb
-        retention-days: 7
-
-  build-linux:
-    name: Build (Linux)
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Setup CMake
-      uses: lukka/get-cmake@latest
-      with:
-        cmakeVersion: 3.29.0
-    
-    - name: Setup Vulkan SDK (Linux)
-      run: |
-        sudo apt-get update && sudo apt-get install -y vulkan-tools libvulkan-dev glslang-tools
-    
-    - name: Configure with CMake
-      run: |
-        mkdir -p build
-        cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release
-    
-    - name: Build
-      run: |
-        cd build
-        make -j$(nproc)
-    
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ofp-renderer-linux
-        path: build/lib*.so
-        retention-days: 7
-
-  test:
-    name: Test
-    needs: build-windows
-    runs-on: windows-latest
-    if: github.event_name == 'pull_request'
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
-    
-    - name: List artifacts
-      run: |
-        dir artifacts
-        dir artifacts\ofp-renderer-dll
-
-  release:
-    name: Release
-    needs: [build-windows, build-linux, test]
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: release
-    
-    - name: Prepare release
-      run: |
-        mkdir -p release/windows
-        mkdir -p release/linux
-        cp release/ofp-renderer-dll/*.dll release/windows/
-        cp release/ofp-renderer-linux/*.so release/linux/
-    
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: release/**
-        generate_release_notes: true
-        tag_name: ${{ github.ref_name }}
