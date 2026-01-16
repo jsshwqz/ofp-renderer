@@ -121,6 +121,8 @@ void PostProcessor::ApplyGlare(float strength, int size, bool darkenSky)
 
 bool PostProcessor::CreateRenderTargets(UINT width, UINT height)
 {
+    CleanupRenderTargets();
+
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -131,15 +133,25 @@ bool PostProcessor::CreateRenderTargets(UINT width, UINT height)
     imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
+    VkMemoryRequirements memReq{};
+    if (m_IntermediateImage != VK_NULL_HANDLE)
+    {
+        vkGetImageMemoryRequirements(m_Device, m_IntermediateImage, &memReq);
+    }
+
     VkMemoryAllocateInfo memInfo{};
     memInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    memInfo.allocationSize = 0;
-    memInfo.memoryTypeIndex = 0;
-
-    VkMemoryRequirements memReq{};
-    vkGetImageMemoryRequirements(m_Device, m_IntermediateImage, &memReq);
     memInfo.allocationSize = memReq.size;
-    vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memInfo.memoryTypeIndex);
+
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memProperties);
+    memInfo.memoryTypeIndex = FindMemoryType(memProperties, memReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    if (vkCreateImage(m_Device, &imageInfo, nullptr, &m_IntermediateImage) != VK_SUCCESS)
+    {
+        OutputDebugStringA("[PostProcessing] Failed to create intermediate image\n");
+        return false;
+    }
 
     if (vkAllocateMemory(m_Device, &memInfo, nullptr, &m_IntermediateImageMemory) != VK_SUCCESS)
     {
@@ -174,7 +186,7 @@ bool PostProcessor::CreateRenderTargets(UINT width, UINT height)
 
     vkGetImageMemoryRequirements(m_Device, m_OutputImage, &memReq);
     memInfo.allocationSize = memReq.size;
-    vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memInfo.memoryTypeIndex);
+    memInfo.memoryTypeIndex = FindMemoryType(memProperties, memReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     if (vkAllocateMemory(m_Device, &memInfo, nullptr, &m_OutputImageMemory) != VK_SUCCESS)
     {
@@ -184,6 +196,7 @@ bool PostProcessor::CreateRenderTargets(UINT width, UINT height)
 
     vkBindImageMemory(m_Device, m_OutputImage, m_OutputImageMemory, 0);
 
+    viewInfo.image = m_OutputImage;
     if (vkCreateImageView(m_Device, &viewInfo, nullptr, &m_OutputImageView) != VK_SUCCESS)
     {
         OutputDebugStringA("[PostProcessing] Failed to create output image view\n");
@@ -191,6 +204,29 @@ bool PostProcessor::CreateRenderTargets(UINT width, UINT height)
     }
 
     return true;
+}
+
+void PostProcessor::CleanupRenderTargets()
+{
+    if (m_OutputImageView) { vkDestroyImageView(m_Device, m_OutputImageView, nullptr); m_OutputImageView = VK_NULL_HANDLE; }
+    if (m_OutputImageMemory) { vkFreeMemory(m_Device, m_OutputImageMemory, nullptr); m_OutputImageMemory = VK_NULL_HANDLE; }
+    if (m_OutputImage) { vkDestroyImage(m_Device, m_OutputImage, nullptr); m_OutputImage = VK_NULL_HANDLE; }
+
+    if (m_IntermediateImageView) { vkDestroyImageView(m_Device, m_IntermediateImageView, nullptr); m_IntermediateImageView = VK_NULL_HANDLE; }
+    if (m_IntermediateImageMemory) { vkFreeMemory(m_Device, m_IntermediateImageMemory, nullptr); m_IntermediateImageMemory = VK_NULL_HANDLE; }
+    if (m_IntermediateImage) { vkDestroyImage(m_Device, m_IntermediateImage, nullptr); m_IntermediateImage = VK_NULL_HANDLE; }
+}
+
+UINT PostProcessor::FindMemoryType(VkPhysicalDeviceMemoryProperties properties, UINT typeFilter, VkMemoryPropertyFlags propertiesFlags)
+{
+    for (UINT i = 0; i < properties.memoryTypeCount; i++)
+    {
+        if ((typeFilter & (1 << i)) && (properties.memoryTypes[i].propertyFlags & propertiesFlags) == propertiesFlags)
+        {
+            return i;
+        }
+    }
+    return 0;
 }
 
 bool PostProcessor::CreateShaders()

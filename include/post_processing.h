@@ -56,7 +56,9 @@ public:
 private:
     PostProcessor() = default;
     ~PostProcessor() { Shutdown(); }
-    
+
+    void CleanupRenderTargets();
+    UINT FindMemoryType(VkPhysicalDeviceMemoryProperties properties, UINT typeFilter, VkMemoryPropertyFlags propertiesFlags);
     bool CreateRenderTargets(UINT width, UINT height);
     bool CreateShaders();
     bool CreateSamplers();
