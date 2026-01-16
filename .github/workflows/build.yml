@@ -29,5 +29,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ofp-renderer-dll
-        path: build/*.dll
+        path: build/Release/*.dll
         retention-days: 7
