@@ -29,7 +29,7 @@ Required tools (all free):
 
 ### Download Pre-built DLL
 
-1. Go to [Releases](https://github.com/yourusername/ofp-renderer/releases)
+1. Go to [Releases](https://github.com/jsshwqz/ofp-renderer/releases)
 2. Download the latest `ofp_renderer.dll`
 3. Copy to your OFP game directory
 4. Rename or configure to load the DLL
@@ -129,7 +129,7 @@ cmake --build . --config Release
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/yourusername/ofp-renderer.git
+git clone https://github.com/jsshwqz/ofp-renderer.git
 cd ofp-renderer
 
 # 2. Open in VS Code
