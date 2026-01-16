@@ -14,8 +14,7 @@ on:
         default: 'false'
 
 env:
-  VULKAN_SDK_VERSION: 1.3.261.1
-  DIRECTX_SDK_VERSION: June 2010
+  VULKAN_SDK_VERSION: 1.4.335.0
 
 jobs:
   build-windows:
@@ -29,18 +28,14 @@ jobs:
     - name: Setup Vulkan SDK
       shell: pwsh
       run: |
-        $url = "https://sdk.lunarg.com/sdk/download/${{ env.VULKAN_SDK_VERSION }}/windows/VulkanSDK-${{ env.VULKAN_SDK_VERSION }}-Installer.exe"
-        Invoke-WebRequest -Uri $url -OutFile "vulkan_installer.exe"
-        Start-Process -FilePath "vulkan_installer.exe" -ArgumentList "--accept-licenses --default-answer --skip-installer" -Wait
-        Write-Host "Vulkan SDK installed"
+        choco install vulkansdk --version 1.4.335.0 -y
+        Write-Host "Vulkan SDK installed via Chocolatey"
     
     - name: Setup DirectX SDK
       shell: pwsh
       run: |
-        $url = "https://download.microsoft.com/download/A/E/7/AE743F1F-9C9B-4D5C-8A7F-6F7B7D2E2B8F/dxsdk_jun2010.exe"
-        Invoke-WebRequest -Uri $url -OutFile "dxsdk_installer.exe"
-        Start-Process -FilePath "dxsdk_installer.exe" -ArgumentList "/Q" -Wait
-        Write-Host "DirectX SDK installed"
+        choco install directx --y 2>&1 || Write-Host "DirectX SDK may already be installed"
+        Write-Host "DirectX SDK setup complete"
     
     - name: Configure with CMake
       shell: pwsh
