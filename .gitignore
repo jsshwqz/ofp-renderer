@@ -1,0 +1,49 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.opensdf
+*.sdf
+*.cache
+Debug/
+Release/
+x64/
+Build/
+*.log
+
+# Build outputs
+bin/
+lib/
+obj/
+*.dll
+*.exp
+*.lib
+*.pdb
+*.ilk
+*.meta
+
+# Vulkan SDK
+VulkanSDK/
+
+# DirectX SDK
+DXSDK/
+
+# Temporary files
+*.tmp
+*.bak
+*~
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+build/
+
+# IDE
+.idea/
+*.swp
+*.swo

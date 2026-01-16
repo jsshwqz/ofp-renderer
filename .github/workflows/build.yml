@@ -1,0 +1,149 @@
+name: Build OFP Vulkan Renderer
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: 'Run with debug logging'
+        required: false
+        default: 'false'
+
+env:
+  VULKAN_SDK_VERSION: 1.3.261.1
+  DIRECTX_SDK_VERSION: June 2010
+
+jobs:
+  build-windows:
+    name: Build (Windows)
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Vulkan SDK
+      shell: pwsh
+      run: |
+        $url = "https://sdk.lunarg.com/sdk/download/${{ env.VULKAN_SDK_VERSION }}/windows/VulkanSDK-${{ env.VULKAN_SDK_VERSION }}-Installer.exe"
+        Invoke-WebRequest -Uri $url -OutFile "vulkan_installer.exe"
+        Start-Process -FilePath "vulkan_installer.exe" -ArgumentList "--accept-licenses --default-answer --skip-installer" -Wait
+        Write-Host "Vulkan SDK installed"
+    
+    - name: Setup DirectX SDK
+      shell: pwsh
+      run: |
+        $url = "https://download.microsoft.com/download/A/E/7/AE743F1F-9C9B-4D5C-8A7F-6F7B7D2E2B8F/dxsdk_jun2010.exe"
+        Invoke-WebRequest -Uri $url -OutFile "dxsdk_installer.exe"
+        Start-Process -FilePath "dxsdk_installer.exe" -ArgumentList "/Q" -Wait
+        Write-Host "DirectX SDK installed"
+    
+    - name: Configure with CMake
+      shell: pwsh
+      run: |
+        cmake -B build -G "Visual Studio 17 2022" -A x64 `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DVULKAN_SDK="$env:VULKAN_SDK" `
+          -DDXSDK_DIR="$env:DXSDK_DIR"
+    
+    - name: Build
+      shell: pwsh
+      run: cmake --build build --config Release --parallel
+    
+    - name: Upload DLL artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ofp-renderer-dll
+        path: build/bin/*.dll
+        retention-days: 7
+    
+    - name: Upload PDB artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ofp-renderer-pdb
+        path: build/bin/*.pdb
+        retention-days: 7
+
+  build-linux:
+    name: Build (Linux)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Vulkan SDK (Linux)
+      run: |
+        wget -q "https://sdk.lunarg.com/sdk/download/${{ env.VULKAN_SDK_VERSION }}/linux/vulkansdk-linux-${{ env.VULKAN_SDK_VERSION }}.tar.xz"
+        tar -xf "vulkansdk-linux-${{ env.VULKAN_SDK_VERSION }}.tar.xz"
+        echo "VULKAN_SDK=$PWD/${{ env.VULKAN_SDK_VERSION }}/x86_64" >> $GITHUB_ENV
+    
+    - name: Configure with CMake
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+    
+    - name: Build
+      run: |
+        cd build
+        make -j$(nproc)
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ofp-renderer-linux
+        path: build/lib*.so
+        retention-days: 7
+
+  test:
+    name: Test
+    needs: build-windows
+    runs-on: windows-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+    
+    - name: List artifacts
+      run: |
+        dir artifacts
+        dir artifacts\ofp-renderer-dll
+
+  release:
+    name: Release
+    needs: [build-windows, build-linux, test]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: release
+    
+    - name: Prepare release
+      run: |
+        mkdir -p release/windows
+        mkdir -p release/linux
+        cp release/ofp-renderer-dll/*.dll release/windows/
+        cp release/ofp-renderer-linux/*.so release/linux/
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: release/**
+        generate_release_notes: true
+        tag_name: ${{ github.ref_name }}

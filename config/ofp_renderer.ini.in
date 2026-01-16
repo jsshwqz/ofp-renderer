@@ -1,0 +1,38 @@
+# OFP Renderer Default Configuration
+# This file is installed with the renderer
+
+[Renderer]
+# Graphics settings
+EnableValidation=true
+EnableVSync=false
+EnableAnisotropy=true
+AnisotropyLevel=16
+Width=1920
+Height=1080
+Fullscreen=false
+
+[Effects]
+# Post-processing effects
+EnablePostProcessing=true
+EnableHardLight=false
+EnableDesaturate=false
+EnableGlare=false
+HardLightStrength=0.4
+DesaturationStrength=0.2
+GlareStrength=0.3
+GlareSize=3
+GlareDarkenSky=false
+
+[Performance]
+# Performance optimization
+EnableAutoFallback=true
+EnableLODBias=false
+LODBias0=0.0
+LODBias1=0.0
+
+[Screenshot]
+# Screenshot settings
+EnableScreenshots=true
+AutoSave=true
+SavePath=.\Screenshots
+Format=png

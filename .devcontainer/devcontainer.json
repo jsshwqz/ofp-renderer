@@ -1,0 +1,54 @@
+{
+  "name": "OFP Vulkan Renderer Development",
+  "image": "mcr.microsoft.com/devcontainers/cpp:1-22-windows",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "vulkanspecification.vscode-vulkan",
+        "github.copilot",
+        "mskelton.npm-outdated"
+      ],
+      "settings": {
+        "cmake.configureOnOpen": true,
+        "cmake.generator": "Visual Studio 17 2022",
+        "cmake.buildDirectory": "${workspaceFolder}/build",
+        "cmake.configureArgs": [
+          "-DVULKAN_SDK=/usr/local/vulkan",
+          "-DDXSDK_DIR=/opt/dxsdk"
+        ],
+        "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools.activeConfiguration",
+        "files.associations": {
+          "*.h": "cpp",
+          "*.cpp": "cpp"
+        }
+      }
+    }
+  },
+  
+  "postCreateCommand": "powershell -Command .\\scripts\\setup.ps1",
+  
+  "remoteUser": "devcontainer",
+  
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+  
+  "constraints": {
+    "memory": "8gb"
+  },
+  
+  "overrideFeatureInstallOrder": [
+    "ghcr.io/devcontainers/features/git",
+    "ghcr.io/devcontainers/features/github-cli"
+  ]
+}
