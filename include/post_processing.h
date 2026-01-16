@@ -6,7 +6,8 @@
  * to the rendered scene, including hard light, desaturation, and glare.
  */
 
-#pragma once
+#ifndef OFP_RENDERER_POST_PROCESSING_H
+#define OFP_RENDERER_POST_PROCESSING_H
 
 #include <vulkan/vulkan.h>
 
@@ -97,3 +98,5 @@ private:
 };
 
 } // namespace PostProcessing
+
+#endif // OFP_RENDERER_POST_PROCESSING_H

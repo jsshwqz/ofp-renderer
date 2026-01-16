@@ -6,7 +6,8 @@
  * with modern Vulkan API for improved performance and stability.
  */
 
-#pragma once
+#ifndef OFP_RENDERER_VULKAN_RENDERER_H
+#define OFP_RENDERER_VULKAN_RENDERER_H
 
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.h>
@@ -138,3 +139,5 @@ private:
 };
 
 } // namespace Vulkan
+
+#endif // OFP_RENDERER_VULKAN_RENDERER_H

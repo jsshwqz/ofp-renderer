@@ -6,7 +6,8 @@
  * for the renderer, including graphics options, effects, and performance.
  */
 
-#pragma once
+#ifndef OFP_RENDERER_CONFIG_H
+#define OFP_RENDERER_CONFIG_H
 
 #include <Windows.h>
 #include <string>
@@ -103,3 +104,5 @@ private:
 };
 
 } // namespace Config
+
+#endif // OFP_RENDERER_CONFIG_H

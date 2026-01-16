@@ -1,0 +1,30 @@
+// OFP Renderer Icon Resource
+// 32x32 pixels, 8-bit color (256 colors)
+// This file can be compiled with windres or used as-is in some environments
+
+OFP_ICON ICON "icon.ico"
+
+// Version information
+1 VERSION INFO
+FILEVERSION 1,0,0,0
+PRODUCTVERSION 1,0,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904E4"
+    BEGIN
+      VALUE "CompanyName", "Your Name"
+      VALUE "FileDescription", "OFP Vulkan Renderer"
+      VALUE "FileVersion", "1.0.0.0"
+      VALUE "InternalName", "ofp_renderer"
+      VALUE "LegalCopyright", "Copyright (c) 2025"
+      VALUE "OriginalFilename", "ofp_renderer.dll"
+      VALUE "ProductName", "OFP Vulkan Renderer"
+      VALUE "ProductVersion", "1.0.0.0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0409, 1252
+  END
+END

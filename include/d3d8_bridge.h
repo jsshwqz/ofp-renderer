@@ -6,7 +6,8 @@
  * allowing OFP (which uses D3D8) to run with Vulkan rendering.
  */
 
-#pragma once
+#ifndef OFP_RENDERER_D3D8_BRIDGE_H
+#define OFP_RENDERER_D3D8_BRIDGE_H
 
 #include <d3d8.h>
 #include <d3d9.h>
@@ -117,3 +118,5 @@ private:
 };
 
 } // namespace Bridge
+
+#endif // OFP_RENDERER_D3D8_BRIDGE_H
