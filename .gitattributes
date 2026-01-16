@@ -1,0 +1,37 @@
+# Auto-detect text files and normalize line endings
+* text=auto
+
+# Visual Studio files
+*.cs     diff=csharp
+*.csproj diff=xml
+*.sln    diff=tex
+*.vcxproj diff=xml
+
+# CMake files
+CMakeLists.txt text
+*.cmake text
+
+# Documentation
+*.md     text
+*.txt    text
+
+# Resource files - binary
+*.ico    binary
+*.png    binary
+*.jpg    binary
+*.gif    binary
+*.exe    binary
+*.dll    binary
+*.pdb    binary
+*.lib    binary
+*.exp    binary
+
+# Vulkan shaders - binary
+*.spv    binary
+*.vert   text
+*.frag   text
+*.glsl   text
+
+# Lock files - binary
+package-lock.json binary
+yarn.lock binary
