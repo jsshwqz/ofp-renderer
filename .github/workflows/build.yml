@@ -1,4 +1,5 @@
 name: Build OFP Vulkan Renderer
+# Version: 1.0.1 - Auto-trigger enabled
 
 on:
   push:
