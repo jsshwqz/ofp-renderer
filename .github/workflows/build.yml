@@ -26,18 +26,22 @@ jobs:
       with:
         cmakeVersion: 3.29.0
     
-    - name: Setup Vulkan SDK
-      shell: pwsh
+    - name: Check Vulkan SDK
       run: |
-        $url = "https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanSDK-1.3.290.0-Installer.exe"
-        Invoke-WebRequest -Uri $url -OutFile "vulkan_installer.exe"
-        Start-Process -FilePath "vulkan_installer.exe" -ArgumentList "--accept-licenses --default-answer --skip-installer" -Wait -NoNewWindow
-        Write-Host "Vulkan SDK installed"
+        echo "VULKAN_SDK=$env:VULKAN_SDK"
+        if (Test-Path "$env:VULKAN_SDK\Bin\vulkan.exe") {
+          Write-Host "Vulkan SDK found at $env:VULKAN_SDK"
+        } else {
+          Write-Host "Vulkan SDK not found, downloading..."
+          $url = "https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanSDK-1.3.290.0-Installer.exe"
+          Invoke-WebRequest -Uri $url -OutFile "vulkan_installer.exe"
+          Start-Process -FilePath "vulkan_installer.exe" -ArgumentList "--accept-licenses --default-answer --skip-installer" -Wait
+        }
+      shell: pwsh
     
     - name: Configure with CMake
       shell: pwsh
-      run: |
-        cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+      run: cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
     
     - name: Build
       shell: pwsh
@@ -72,9 +76,7 @@ jobs:
     
     - name: Setup Vulkan SDK (Linux)
       run: |
-        wget -q "https://sdk.lunarg.com/sdk/download/1.3.290.0/linux/vulkansdk-linux-1.3.290.0.tar.xz"
-        tar -xf "vulkansdk-linux-1.3.290.0.tar.xz"
-        echo "VULKAN_SDK=$PWD/1.3.290.0/x86_64" >> $GITHUB_ENV
+        sudo apt-get update && sudo apt-get install -y vulkan-tools libvulkan-dev glslang-tools
     
     - name: Configure with CMake
       run: |
