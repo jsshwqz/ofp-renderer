@@ -11,7 +11,7 @@ file(GLOB SOURCES
     "include/*.h"
 )
 
-add_library(ofp_renderer SHEDULE ${SOURCES})
+add_library(ofp_renderer SHARED ${SOURCES})
 
 target_include_directories(ofp_renderer PRIVATE
     "include"
