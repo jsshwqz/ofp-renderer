@@ -14,19 +14,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
     
-    - name: Download Vulkan SDK Headers
-      run: |
-        mkdir -p $env:VULKAN_SDK\Include
-        mkdir -p $env:VULKAN_SDK\Lib
-        curl -sL "https://raw.githubusercontent.com/KhronosGroup/Vulkan-Headers/main/include/vulkan/vulkan.h" -o "$env:VULKAN_SDK\Include\vulkan\vulkan.h"
-        curl -sL "https://raw.githubusercontent.com/KhronosGroup/Vulkan-Headers/main/include/vulkan/vulkan_core.h" -o "$env:VULKAN_SDK\Include\vulkan\vulkan_core.h"
-        curl -sL "https://raw.githubusercontent.com/KhronosGroup/Vulkan-Headers/main/include/vulkan/vulkan_beta.h" -o "$env:VULKAN_SDK\Include\vulkan\vulkan_beta.h"
-        curl -sL "https://raw.githubusercontent.com/KhronosGroup/Vulkan-Loader/main/loader/vk_layer_extension_utils.h" -o "$env:VULKAN_SDK\Include\vulkan\vk_layer_extension_utils.h"
-        curl -sL "https://raw.githubusercontent.com/KhronosGroup/Vulkan-Loader/main/loader/vk_loader_extensions.h" -o "$env:VULKAN_SDK\Include\vulkan\vk_loader_extensions.h"
-        echo "VULKAN_SDK=$env:VULKAN_SDK" >> $env:GITHUB_ENV
-        echo "VULKAN_SDK Include=$env:VULKAN_SDK\Include" >> $env:GITHUB_ENV
-      shell: pwsh
-    
     - name: Setup CMake
       uses: lukka/get-cmake@latest
       with:
