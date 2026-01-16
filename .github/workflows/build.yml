@@ -14,6 +14,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
     
+    - name: Install MSVC Build Tools
+      run: |
+        choco install -y visualstudio2022buildtools
+        choco install -y visualstudio2022-workload-vctools
+    
     - name: Setup CMake
       uses: lukka/get-cmake@latest
       with:
@@ -21,7 +26,7 @@ jobs:
         useNinja: true
     
     - name: Configure with CMake
-      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+      run: cmake -B build -G "Ninja Multi-Config" -DCMAKE_BUILD_TYPE=Release
     
     - name: Build
       run: cmake --build build --config Release --parallel 4
