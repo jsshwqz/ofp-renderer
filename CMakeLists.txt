@@ -5,10 +5,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
-file(GLOB SOURCES
-    "src/*.cpp"
-    "src/*.c"
-    "include/*.h"
+set(SOURCES
+    src/dllmain.cpp
+    src/post_processing.cpp
+    src/vulkan_renderer.cpp
 )
 
 add_library(ofp_renderer SHARED ${SOURCES})
