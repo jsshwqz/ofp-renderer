@@ -9,10 +9,14 @@
 #ifndef OFP_RENDERER_VULKAN_RENDERER_H
 #define OFP_RENDERER_VULKAN_RENDERER_H
 
-#define VK_USE_PLATFORM_WIN32_KHR
-#include <vulkan/vulkan.h>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+#include "vulkan/vulkan.h"
 #include <vector>
 #include <memory>
+#include <cstdint>
 
 namespace Vulkan {
 
@@ -38,7 +42,7 @@ public:
      * @param height Window height
      * @return true if successful
      */
-    bool Initialize(HWND hwnd, UINT width, UINT height);
+    bool Initialize(HWND hwnd, uint32_t width, uint32_t height);
     
     /**
      * @brief Shutdown the renderer and release resources
@@ -69,19 +73,19 @@ public:
     /**
      * @brief Handle window resize
      */
-    void Resize(UINT width, UINT height);
+    void Resize(uint32_t width, uint32_t height);
     
     // Getters
-    VkInstance GetInstance() const { return m_Instance; }
+    VkInstance GetVkInstance() const { return m_Instance; }
     VkPhysicalDevice GetPhysicalDevice() const { return m_PhysicalDevice; }
     VkDevice GetDevice() const { return m_Device; }
     VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
     VkCommandBuffer GetCommandBuffer() const { return m_CommandBuffer; }
     VkRenderPass GetRenderPass() const { return m_RenderPass; }
-    VkFramebuffer GetFramebuffer() const { return m_Framebuffer; }
+    VkFramebuffer GetFramebuffer() const { return m_Framebuffers[0]; }
     
-    UINT GetWidth() const { return m_Width; }
-    UINT GetHeight() const { return m_Height; }
+    uint32_t GetWidth() const { return m_Width; }
+    uint32_t GetHeight() const { return m_Height; }
     bool IsInitialized() const { return m_Initialized; }
     
 private:
@@ -92,7 +96,7 @@ private:
     bool CreateSurface(HWND hwnd);
     bool PickPhysicalDevice();
     bool CreateLogicalDevice();
-    bool CreateSwapChain(UINT width, UINT height);
+    bool CreateSwapChain(uint32_t width, uint32_t height);
     bool CreateImageViews();
     bool CreateRenderPass();
     bool CreateGraphicsPipeline();
@@ -102,7 +106,7 @@ private:
     bool CreateSynchronization();
     
     void CleanupSwapChain();
-    void RecreateSwapChain(UINT width, UINT height);
+    void RecreateSwapChain(uint32_t width, uint32_t height);
     
     VkInstance m_Instance = VK_NULL_HANDLE;
     VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
@@ -130,9 +134,9 @@ private:
     VkPresentModeKHR m_PresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
     VkSurfaceFormatKHR m_SurfaceFormat;
     
-    UINT m_Width = 0;
-    UINT m_Height = 0;
-    UINT m_CurrentFrame = 0;
+    uint32_t m_Width = 0;
+    uint32_t m_Height = 0;
+    uint32_t m_CurrentFrame = 0;
     
     bool m_Initialized = false;
     bool m_VSyncEnabled = false;
