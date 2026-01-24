@@ -1,7 +1,9 @@
-#include "vulkan_renderer.h"
+#include <windows.h>
+#include "../include/vulkan_renderer.h"
 #include <iostream>
 #include <stdexcept>
 #include <set>
+#include <vector>
 
 const std::vector<const char*> validationLayers = {
     "VK_LAYER_KHRONOS_validation"
@@ -11,7 +13,7 @@ const std::vector<const char*> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
-bool VulkanRenderer::Initialize(HWND hwnd, UINT width, UINT height)
+bool Vulkan::Renderer::Initialize(HWND hwnd, uint32_t width, uint32_t height)
 {
     if (m_bInitialized) return true;
 
@@ -85,7 +87,7 @@ bool VulkanRenderer::Initialize(HWND hwnd, UINT width, UINT height)
     return true;
 }
 
-void VulkanRenderer::Shutdown()
+void Vulkan::Renderer::Shutdown()
 {
     if (!m_bInitialized) return;
 
@@ -115,7 +117,7 @@ void VulkanRenderer::Shutdown()
     OutputDebugStringA("[VulkanRenderer] Shutdown complete\n");
 }
 
-bool VulkanRenderer::CreateInstance()
+bool Vulkan::Renderer::CreateInstance()
 {
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -160,7 +162,7 @@ bool VulkanRenderer::CreateInstance()
     return true;
 }
 
-bool VulkanRenderer::CreateDevice(HWND hwnd)
+bool Vulkan::Renderer::CreateDevice(HWND hwnd)
 {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(m_VkInstance, &deviceCount, nullptr);
@@ -272,7 +274,7 @@ bool VulkanRenderer::CreateDevice(HWND hwnd)
     return true;
 }
 
-bool VulkanRenderer::CreateSwapChain(UINT width, UINT height)
+bool Vulkan::Renderer::CreateSwapChain(UINT width, UINT height)
 {
     VkSurfaceCapabilities capabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_VkPhysicalDevice, m_VkSurface, &capabilities);
@@ -355,7 +357,7 @@ bool VulkanRenderer::CreateSwapChain(UINT width, UINT height)
     return true;
 }
 
-bool VulkanRenderer::CreateRenderPass()
+bool Vulkan::Renderer::CreateRenderPass()
 {
     VkAttachmentDescription colorAttachment = {};
     colorAttachment.format = VK_FORMAT_B8G8R8A8_SRGB;
@@ -402,7 +404,7 @@ bool VulkanRenderer::CreateRenderPass()
     return true;
 }
 
-bool VulkanRenderer::CreateFramebuffers()
+bool Vulkan::Renderer::CreateFramebuffers()
 {
     m_Framebuffers.resize(m_SwapChainImageViews.size());
 
@@ -429,7 +431,7 @@ bool VulkanRenderer::CreateFramebuffers()
     return true;
 }
 
-bool VulkanRenderer::CreateCommandPool()
+bool Vulkan::Renderer::CreateCommandPool()
 {
     VkCommandPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -445,7 +447,7 @@ bool VulkanRenderer::CreateCommandPool()
     return true;
 }
 
-bool VulkanRenderer::CreateCommandBuffer()
+bool Vulkan::Renderer::CreateCommandBuffer()
 {
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -462,7 +464,7 @@ bool VulkanRenderer::CreateCommandBuffer()
     return true;
 }
 
-bool VulkanRenderer::CreateSynchronizationObjects()
+bool Vulkan::Renderer::CreateSynchronizationObjects()
 {
     VkSemaphoreCreateInfo semaphoreInfo = {};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -482,12 +484,12 @@ bool VulkanRenderer::CreateSynchronizationObjects()
     return true;
 }
 
-bool VulkanRenderer::CreateShaders()
+bool Vulkan::Renderer::CreateShaders()
 {
     return true;
 }
 
-bool VulkanRenderer::CreatePipeline()
+bool Vulkan::Renderer::CreatePipeline()
 {
     VkVertexInputBindingDescription bindingDescription = {};
     bindingDescription.binding = 0;
@@ -604,7 +606,7 @@ bool VulkanRenderer::CreatePipeline()
     return true;
 }
 
-bool VulkanRenderer::BeginFrame()
+bool Vulkan::Renderer::BeginFrame()
 {
     vkWaitForFences(m_VkDevice, 1, &m_VkInFlightFence, VK_TRUE, UINT64_MAX);
     vkResetFences(m_VkDevice, 1, &m_VkInFlightFence);
@@ -636,7 +638,7 @@ bool VulkanRenderer::BeginFrame()
     return true;
 }
 
-void VulkanRenderer::EndFrame()
+void Vulkan::Renderer::EndFrame()
 {
     vkCmdEndRenderPass(m_VkCommandBuffer);
 
@@ -668,14 +670,14 @@ void VulkanRenderer::EndFrame()
     vkQueuePresentKHR(m_VkGraphicsQueue, &presentInfo);
 }
 
-void VulkanRenderer::RenderScene()
+void Vulkan::Renderer::RenderScene()
 {
 }
 
-void VulkanRenderer::RenderUI()
+void Vulkan::Renderer::RenderUI()
 {
 }
 
-void VulkanRenderer::UpdatePipeline()
+void Vulkan::Renderer::UpdatePipeline()
 {
 }
